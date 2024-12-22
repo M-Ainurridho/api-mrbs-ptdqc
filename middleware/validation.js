@@ -56,4 +56,28 @@ const bookingValidation = [
   },
 ];
 
-export { bookingValidation };
+const registerValidation = [
+  body("username").trim().notEmpty().withMessage("Required"),
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Required")
+    .isEmail()
+    .withMessage("Invalid email"),
+  body("password").trim().isLength({ min: 8 }).withMessage("Min 8 characters"),
+  (req, res, next) => {
+    const results = validationResult(req);
+
+    if (!results.isEmpty()) {
+      res.status(400).json({
+        ok: false,
+        msg: "Bad Request",
+        errors: results.errors,
+      });
+    } else {
+      next();
+    }
+  },
+];
+
+export { bookingValidation, registerValidation };

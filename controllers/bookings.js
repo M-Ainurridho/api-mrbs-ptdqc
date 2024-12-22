@@ -5,6 +5,7 @@ import {
   getBookingById,
   createBooking,
 } from "../models/bookings.js";
+import { InternalServerError } from "../response.js";
 
 const getAllBookingsHandler = async (req, res) => {
   try {
@@ -28,7 +29,7 @@ const getAllBookingsHandler = async (req, res) => {
       payload: { bookings },
     });
   } catch {
-    res.status(500).json({ ok: false, msg: "Internal Server Error" });
+    InternalServerError(res);
   }
 };
 
@@ -51,7 +52,7 @@ const getBookingByIdHandler = async (req, res) => {
       });
     }
   } catch {
-    res.status(500).json({ ok: false, msg: "Internal Server Error" });
+    InternalServerError(res);
   }
 };
 
@@ -78,7 +79,7 @@ const createBookingHandler = async (req, res) => {
       });
     }
   } catch {
-    res.status(500).json({ ok: false, msg: "Internal Server Error" });
+    InternalServerError(res);
   }
 };
 
