@@ -11,7 +11,17 @@ const datetimeFormat = () => {
 };
 
 const dateFormat = (date) => {
-  return new Date(date).toISOString().split("T")[0];
+  const newDate = new Date(date).toLocaleString("id-ID", {
+    timeZone: "Asia/Jakarta",
+  });
+  console.log(newDate);
+  const splitString = newDate.split(", ");
+  const formatDate = splitString[0]
+    .split("/")
+    .map((day) => (day.length < 2 ? `0${day}` : day))
+    .reverse()
+    .join("-");
+  return formatDate;
 };
 
 export { datetimeFormat, dateFormat };

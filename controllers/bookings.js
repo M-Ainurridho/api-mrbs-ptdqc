@@ -12,16 +12,27 @@ const getAllBookingsHandler = async (req, res) => {
     const response = await getAllBookings();
 
     const bookings = response.map((booking) => {
-      return {
-        ...booking,
-        startRecur: dateFormat(booking.startRecur),
-        endRecur: dateFormat(booking.endRecur),
-        recurring: Boolean(booking.recurring),
-        daysOfWeek: booking?.daysOfWeek
-          ? booking.daysOfWeek.split(",").map((day) => Number(day))
-          : [],
-      };
+      if (booking.recurring) {
+        return {
+          ...booking,
+          startRecur: dateFormat(booking.startRecur),
+          endRecur: dateFormat(booking.endRecur),
+          recurring: Boolean(booking.recurring),
+          daysOfWeek: booking.daysOfWeek.split(",").map((day) => Number(day)),
+        };
+      } else {
+        return {
+          id: booking.id,
+          title: booking.title,
+          start: `${dateFormat(booking.startRecur)}T${booking.startTime}`,
+          end: `${dateFormat(booking.endRecur)}T${booking.endTime}`,
+          description: booking.description,
+          resourceId: booking.resourceId,
+          recurring: Boolean(booking.recurring),
+        };
+      }
     });
+    console.log(bookings);
 
     res.status(200).json({
       ok: true,
