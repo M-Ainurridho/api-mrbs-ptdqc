@@ -1,4 +1,5 @@
 import { body, validationResult } from "express-validator";
+import { getUserById } from "../models/users.js";
 
 const bookingValidation = [
   body("title").trim().notEmpty().withMessage("Required"),
@@ -63,7 +64,16 @@ const registerValidation = [
     .notEmpty()
     .withMessage("Required")
     .isEmail()
-    .withMessage("Invalid email"),
+    .withMessage("Invalid email")
+    .custom(async (value) => {
+      const isExist = await getUserById(value);
+
+      if (isExist.length > 0) {
+        throw new Error("Email is already registered");
+      }
+
+      return true;
+    }),
   body("password").trim().isLength({ min: 8 }).withMessage("Min 8 characters"),
   (req, res, next) => {
     const results = validationResult(req);
@@ -80,4 +90,27 @@ const registerValidation = [
   },
 ];
 
-export { bookingValidation, registerValidation };
+const updateUserValidation = [
+  body("username").trim().notEmpty().withMessage("Required"),
+  body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Required")
+    .isEmail()
+    .withMessage("Invalid email"),
+  (req, res, next) => {
+    const results = validationResult(req);
+
+    if (!results.isEmpty()) {
+      res.status(400).json({
+        ok: false,
+        msg: "Bad Request",
+        errors: results.errors,
+      });
+    } else {
+      next();
+    }
+  },
+];
+
+export { bookingValidation, registerValidation, updateUserValidation };

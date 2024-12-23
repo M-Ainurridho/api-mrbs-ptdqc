@@ -2,7 +2,13 @@ import { nanoid } from "nanoid";
 import { InternalServerError } from "../response.js";
 import { datetimeFormat } from "../utils/dates.js";
 import { hashPassword } from "../utils/hash.js";
-import { createUser, getAllUsers, getUserById } from "../models/users.js";
+import {
+  createUser,
+  deleteUserById,
+  getAllUsers,
+  getUserById,
+  updateUserById,
+} from "../models/users.js";
 
 const getAllUsersHandler = async (req, res) => {
   try {
@@ -52,9 +58,8 @@ const createUserHandler = async (req, res) => {
   const id = nanoid(16);
   const createdAt = datetimeFormat();
   const updatedAt = createdAt;
-  const roleId = "yrufjdhtqoplgjky";
 
-  const data = { ...req.body, id, roleId, createdAt, updatedAt };
+  const data = { ...req.body, id, createdAt, updatedAt };
   data.password = hashPassword(data.password);
 
   try {
@@ -73,14 +78,48 @@ const createUserHandler = async (req, res) => {
 };
 
 const updateUserByIdHandler = async (req, res) => {
+  const { id } = req.params;
+  const updatedAt = datetimeFormat();
+
+  const data = { ...req.body, id, updatedAt };
+
   try {
+    const update = await updateUserById(data);
+
+    if (update?.changedRows) {
+      res.status(200).json({
+        ok: true,
+        msg: "Update User Data",
+        payload: { userId: id },
+      });
+    } else {
+      res.status(400).json({
+        ok: false,
+        msg: "Not Found (user id)",
+      });
+    }
   } catch {
     InternalServerError(res);
   }
 };
 
 const deleteUserByIdHandler = async (req, res) => {
+  const { id } = req.params;
+
   try {
+    const deleted = await deleteUserById(id);
+
+    if (deleted?.affectedRows) {
+      res.status(200).json({
+        ok: true,
+        msg: "Delete User Data",
+      });
+    } else {
+      res.status(400).json({
+        ok: false,
+        msg: "Not Found (user id)",
+      });
+    }
   } catch {
     InternalServerError(res);
   }

@@ -12,10 +12,11 @@ const getAllUsers = async () => {
 const getUserById = async (id) => {
   try {
     const [results] = await connection.query(
-      `SELECT * FROM users WHERE id = '${id}' OR username = '${id.toLowerCase()}'`
+      `SELECT * FROM users WHERE id = '${id}' OR username = '${id.toLowerCase()}' OR email = '${id}'`
     );
     return results;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };
@@ -41,6 +42,17 @@ const createUser = async (data) => {
 
 const updateUserById = async (data) => {
   try {
+    const [results] = await connection.query(
+      `UPDATE users SET 
+      username = '${data.username}',
+      email = '${data.email}',
+      roleId = '${data.roleId}',
+      updatedAt = '${data.updatedAt}'
+      WHERE id = '${data.id}'
+      `
+    );
+
+    return results;
   } catch (err) {
     throw err;
   }
@@ -48,6 +60,10 @@ const updateUserById = async (data) => {
 
 const deleteUserById = async (id) => {
   try {
+    const [results] = await connection.query(
+      `DELETE FROM users WHERE id = '${id}'`
+    );
+    return results;
   } catch (err) {
     throw err;
   }
