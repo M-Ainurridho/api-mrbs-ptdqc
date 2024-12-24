@@ -2,7 +2,9 @@ import connection from "../config/db.js";
 
 const getAllBookings = async () => {
   try {
-    const [results] = await connection.query(`SELECT * FROM bookings`);
+    const [results] = await connection.query(
+      `SELECT * FROM bookings ORDER BY updatedAt DESC`
+    );
     return results;
   } catch (err) {
     console.log(err);
@@ -36,6 +38,7 @@ const createBooking = async (data) => {
         '${data.resourceId}', 
         '${data.userId}', 
          ${data.recurring}, 
+        '${data.repeat}', 
         '${data.daysOfWeek}', 
         '${data.createdAt}', 
         '${data.updatedAt}'

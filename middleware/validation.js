@@ -1,5 +1,6 @@
 import { body, validationResult } from "express-validator";
 import { getUserById } from "../models/users.js";
+import jwt from "jsonwebtoken";
 
 const bookingValidation = [
   body("title").trim().notEmpty().withMessage("Required"),
@@ -90,6 +91,24 @@ const registerValidation = [
   },
 ];
 
+const signinValidation = [
+  body("username").trim().notEmpty().withMessage("Required"),
+  body("password").trim().notEmpty().withMessage("Required"),
+  (req, res, next) => {
+    const results = validationResult(req);
+
+    if (!results.isEmpty()) {
+      res.status(400).json({
+        ok: false,
+        msg: "Bad Request",
+        errors: results.errors,
+      });
+    } else {
+      next();
+    }
+  },
+];
+
 const updateUserValidation = [
   body("username").trim().notEmpty().withMessage("Required"),
   body("email")
@@ -113,4 +132,44 @@ const updateUserValidation = [
   },
 ];
 
-export { bookingValidation, registerValidation, updateUserValidation };
+const tokenValidation = (req, res, next) => {
+  const { token } = req.body;
+
+  jwt.verify(token, "ptdqcpassword", function (err, decoded) {
+    if (err) {
+      res.status(404).json({
+        ok: false,
+        msg: "Not Found (token)",
+      });
+    } else {
+      req.userId = decoded.id;
+      next();
+    }
+  });
+};
+
+const roomsValidation = [
+  body("room").trim().notEmpty().withMessage("Required"),
+  (req, res, next) => {
+    const results = validationResult(req);
+
+    if (!results.isEmpty()) {
+      res.status(400).json({
+        ok: false,
+        msg: "Bad Request",
+        errors: results.errors,
+      });
+    } else {
+      next();
+    }
+  },
+];
+
+export {
+  bookingValidation,
+  registerValidation,
+  signinValidation,
+  updateUserValidation,
+  tokenValidation,
+  roomsValidation,
+};

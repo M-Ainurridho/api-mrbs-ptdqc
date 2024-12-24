@@ -14,7 +14,6 @@ const dateFormat = (date) => {
   const newDate = new Date(date).toLocaleString("id-ID", {
     timeZone: "Asia/Jakarta",
   });
-  console.log(newDate);
   const splitString = newDate.split(", ");
   const formatDate = splitString[0]
     .split("/")

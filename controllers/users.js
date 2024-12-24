@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { InternalServerError } from "../response.js";
 import { datetimeFormat } from "../utils/dates.js";
-import { hashPassword } from "../utils/hash.js";
+import { comparePassword, createToken, hashPassword } from "../utils/hash.js";
 import {
   createUser,
   deleteUserById,
@@ -77,6 +77,43 @@ const createUserHandler = async (req, res) => {
   }
 };
 
+const signinUserHandler = async (req, res) => {
+  const data = { ...req.body };
+
+  try {
+    const users = await getUserById(data.username);
+
+    if (users.length > 0) {
+      const comPassword = comparePassword(data.password, users[0].password);
+      if (comPassword) {
+        const token = createToken(users[0].id);
+        res
+          .status(200)
+          .json({ ok: true, msg: "Successfuly signin", payload: { token } });
+      } else {
+        const errors = [
+          {
+            msg: "Wrong password",
+            path: "password",
+          },
+        ];
+        res.status(404).json({ ok: false, msg: "Bad Request", errors });
+      }
+    } else {
+      const errors = [
+        {
+          value: data.username,
+          msg: "Username not registered",
+          path: "username",
+        },
+      ];
+      res.status(404).json({ ok: false, msg: "Bad Request", errors });
+    }
+  } catch {
+    InternalServerError(res);
+  }
+};
+
 const updateUserByIdHandler = async (req, res) => {
   const { id } = req.params;
   const updatedAt = datetimeFormat();
@@ -115,9 +152,29 @@ const deleteUserByIdHandler = async (req, res) => {
         msg: "Delete User Data",
       });
     } else {
-      res.status(400).json({
+      res.status(404).json({
         ok: false,
         msg: "Not Found (user id)",
+      });
+    }
+  } catch {
+    InternalServerError(res);
+  }
+};
+
+const exchangeTokenHandler = async (req, res) => {
+  const { userId } = req;
+
+  try {
+    const users = await getUserById(userId);
+
+    if (users.length > 0) {
+      delete users[0].password;
+
+      res.status(200).json({
+        ok: true,
+        msg: "Get User By Token",
+        payload: { user: users[0] },
       });
     }
   } catch {
@@ -129,6 +186,8 @@ export {
   getAllUsersHandler,
   getUserByIdHandler,
   createUserHandler,
+  signinUserHandler,
   updateUserByIdHandler,
   deleteUserByIdHandler,
+  exchangeTokenHandler,
 };

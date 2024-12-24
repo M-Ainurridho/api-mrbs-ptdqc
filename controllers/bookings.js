@@ -32,7 +32,6 @@ const getAllBookingsHandler = async (req, res) => {
         };
       }
     });
-    console.log(bookings);
 
     res.status(200).json({
       ok: true,
@@ -71,10 +70,10 @@ const createBookingHandler = async (req, res) => {
   const id = nanoid(16);
   const createdAt = datetimeFormat();
   const updatedAt = createdAt;
-  const userId = "dafjhhslf";
 
-  const data = { ...req.body, id, createdAt, updatedAt, userId };
+  const data = { ...req.body, id, createdAt, updatedAt };
 
+  console.log(data);
   if (!data.recurring) {
     data.endRecur = data.startRecur;
   }
@@ -98,10 +97,24 @@ const updateBookingByIdHandler = async (req, res) => {};
 
 const deleteBookingByIdHandler = async (req, res) => {};
 
+const getAllEventsHandler = async (req, res) => {
+  try {
+    const events = await getAllBookings();
+    res.status(200).json({
+      ok: true,
+      msg: "Get All Event",
+      payload: { events: events },
+    });
+  } catch {
+    InternalServerError(res);
+  }
+};
+
 export {
   getAllBookingsHandler,
   getBookingByIdHandler,
   createBookingHandler,
   updateBookingByIdHandler,
   deleteBookingByIdHandler,
+  getAllEventsHandler,
 };

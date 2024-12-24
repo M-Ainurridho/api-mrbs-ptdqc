@@ -4,11 +4,13 @@ import {
   getAllBookingsHandler,
   getBookingByIdHandler,
   createBookingHandler,
+  getAllEventsHandler,
 } from "../controllers/bookings.js";
 
 const app = express.Router();
 
 app.get("/", getAllBookingsHandler);
+app.get("/events", getAllEventsHandler);
 app.get("/:id", getBookingByIdHandler);
 app.post("/", bookingValidation, createBookingHandler);
 
