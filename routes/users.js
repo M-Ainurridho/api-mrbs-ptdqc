@@ -13,6 +13,7 @@ import {
   updateUserByIdHandler,
   deleteUserByIdHandler,
   exchangeTokenHandler,
+  createRoleHandler,
 } from "../controllers/users.js";
 
 const app = express.Router();
@@ -21,6 +22,7 @@ app.get("/", getAllUsersHandler);
 app.get("/:id", getUserByIdHandler);
 app.post("/", registerValidation, createUserHandler);
 app.post("/login", signinValidation, signinUserHandler);
+app.post("/roles", createRoleHandler);
 app.post("/exchangetoken", tokenValidation, exchangeTokenHandler);
 app.patch("/:id", updateUserValidation, updateUserByIdHandler);
 app.delete("/:id", deleteUserByIdHandler);

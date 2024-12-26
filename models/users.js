@@ -1,5 +1,6 @@
 import connection from "../config/db.js";
 
+// CRUD User
 const getAllUsers = async () => {
   try {
     const [results] = await connection.query(`SELECT * FROM users`);
@@ -69,4 +70,28 @@ const deleteUserById = async (id) => {
   }
 };
 
-export { getAllUsers, getUserById, createUser, updateUserById, deleteUserById };
+// CRUD Role
+const createRole = async (data) => {
+  try {
+    const [results] = await connection.query(
+      `INSERT INTO roles VALUES(
+      '${data.id}', 
+      '${data.role.toLowerCase()}', 
+      '${data.createdAt}', 
+      '${data.updatedAt}'
+      )`
+    );
+    return results;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUserById,
+  deleteUserById,
+  createRole,
+};

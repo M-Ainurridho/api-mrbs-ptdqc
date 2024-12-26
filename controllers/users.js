@@ -3,6 +3,7 @@ import { InternalServerError } from "../response.js";
 import { datetimeFormat } from "../utils/dates.js";
 import { comparePassword, createToken, hashPassword } from "../utils/hash.js";
 import {
+  createRole,
   createUser,
   deleteUserById,
   getAllUsers,
@@ -10,6 +11,7 @@ import {
   updateUserById,
 } from "../models/users.js";
 
+// CRUD User
 const getAllUsersHandler = async (req, res) => {
   try {
     const response = await getAllUsers();
@@ -162,6 +164,7 @@ const deleteUserByIdHandler = async (req, res) => {
   }
 };
 
+// CRUD Auth
 const exchangeTokenHandler = async (req, res) => {
   const { userId } = req;
 
@@ -182,6 +185,29 @@ const exchangeTokenHandler = async (req, res) => {
   }
 };
 
+// CRUD Role
+const createRoleHandler = async (req, res) => {
+  const id = nanoid(16);
+  const createdAt = datetimeFormat();
+  const updatedAt = createdAt;
+
+  const data = { ...req.body, id, createdAt, updatedAt };
+
+  try {
+    const create = await createRole(data);
+
+    if (create?.affectedRows) {
+      res.status(200).json({
+        ok: true,
+        msg: "Create New Role",
+        payload: { roleId: id },
+      });
+    }
+  } catch {
+    InternalServerError(res);
+  }
+};
+
 export {
   getAllUsersHandler,
   getUserByIdHandler,
@@ -190,4 +216,5 @@ export {
   updateUserByIdHandler,
   deleteUserByIdHandler,
   exchangeTokenHandler,
+  createRoleHandler,
 };
