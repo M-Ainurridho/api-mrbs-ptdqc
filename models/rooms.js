@@ -1,11 +1,23 @@
 import connection from "../config/db.js";
+import { LIMIT } from "../middleware/counts.js";
 
-const getAllRooms = async () => {
+const getAllRooms = async (limit = false, page = null, query = "") => {
+  const OFFSET = LIMIT * page - LIMIT;
+
   try {
-    const [results] = await connection.query(
-      `SELECT * FROM rooms ORDER BY room ASC`
-    );
-    return results;
+    if (limit) {
+      const [results] = await connection.query(
+        `SELECT * FROM rooms 
+        WHERE room LIKE '%${query}%' OR 
+        createdAt LIKE '%${query}%' 
+        ORDER BY room DESC 
+        LIMIT ${LIMIT} OFFSET ${OFFSET}`
+      );
+      return results;
+    } else {
+      const [results] = await connection.query(`SELECT * FROM rooms`);
+      return results;
+    }
   } catch (err) {
     throw err;
   }
@@ -62,4 +74,24 @@ const deleteRoomById = async (id) => {
   }
 };
 
-export { getAllRooms, getRoomById, createRoom, updateRoomById, deleteRoomById };
+const getCountRooms = async (query) => {
+  try {
+    const [results] = await connection.query(`
+      SELECT COUNT(*) FROM rooms 
+      WHERE room LIKE '%${query}%' OR 
+      createdAt LIKE '%${query}%' 
+      ORDER BY room ASC `);
+    return results[0]["COUNT(*)"];
+  } catch (err) {
+    throw err;
+  }
+};
+
+export {
+  getAllRooms,
+  getRoomById,
+  createRoom,
+  updateRoomById,
+  deleteRoomById,
+  getCountRooms,
+};

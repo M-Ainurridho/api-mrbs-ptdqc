@@ -1,9 +1,14 @@
 import connection from "../config/db.js";
+import { LIMIT } from "../middleware/counts.js";
 
 // CRUD User
-const getAllUsers = async () => {
+const getAllUsers = async (page = null, query = "") => {
+  const OFFSET = LIMIT * page - LIMIT;
+
   try {
-    const [results] = await connection.query(`SELECT * FROM users`);
+    const [results] = await connection.query(`
+      SELECT *, users.id FROM users INNER JOIN roles ON users.roleId = roles.id WHERE users.username LIKE '%${query}%' OR users.email LIKE '%${query}%' OR roles.role LIKE '%${query}%' ORDER BY users.updatedAt DESC LIMIT ${LIMIT} OFFSET ${OFFSET}
+      `);
     return results;
   } catch (err) {
     throw err;
@@ -13,11 +18,15 @@ const getAllUsers = async () => {
 const getUserById = async (id) => {
   try {
     const [results] = await connection.query(
-      `SELECT * FROM users WHERE id = '${id}' OR username = '${id.toLowerCase()}' OR email = '${id}'`
+      `SELECT *, users.id FROM users 
+        INNER JOIN roles ON users.roleId = roles.id 
+        WHERE users.id = '${id}' OR 
+        users.username = '${id.toLowerCase()}' OR 
+        users.email = '${id}'
+      `
     );
     return results;
   } catch (err) {
-    console.log(err);
     throw err;
   }
 };
@@ -71,6 +80,16 @@ const deleteUserById = async (id) => {
 };
 
 // CRUD Role
+const getAllRoles = async () => {
+  try {
+    const [results] = await connection.query(`
+      SELECT * FROM roles ORDER BY updatedAt ASC`);
+    return results;
+  } catch (err) {
+    throw err;
+  }
+};
+
 const createRole = async (data) => {
   try {
     const [results] = await connection.query(
@@ -87,11 +106,28 @@ const createRole = async (data) => {
   }
 };
 
+const getCountUsers = async (query = "") => {
+  try {
+    const [results] = await connection.query(`
+      SELECT COUNT(*) FROM users INNER JOIN roles ON users.roleId = roles.id 
+      WHERE users.username LIKE '%${query}%' OR 
+      users.email LIKE '%${query}%' OR 
+      roles.role LIKE '%${query}%'
+      ORDER BY users.updatedAt DESC
+    `);
+    return results[0]["COUNT(*)"];
+  } catch (err) {
+    throw err;
+  }
+};
+
 export {
   getAllUsers,
   getUserById,
   createUser,
   updateUserById,
   deleteUserById,
+  getAllRoles,
   createRole,
+  getCountUsers,
 };

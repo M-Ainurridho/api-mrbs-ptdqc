@@ -4,8 +4,13 @@ import {
   getAllBookings,
   getBookingById,
   createBooking,
+  getCountBookings,
+  updateBookingById,
+  deleteBookingById,
 } from "../models/bookings.js";
 import { InternalServerError } from "../response.js";
+import { LIMIT } from "../middleware/counts.js";
+import { getUserById } from "../models/users.js";
 
 const getAllBookingsHandler = async (req, res) => {
   try {
@@ -73,7 +78,6 @@ const createBookingHandler = async (req, res) => {
 
   const data = { ...req.body, id, createdAt, updatedAt };
 
-  console.log(data);
   if (!data.recurring) {
     data.endRecur = data.startRecur;
   }
@@ -93,17 +97,67 @@ const createBookingHandler = async (req, res) => {
   }
 };
 
-const updateBookingByIdHandler = async (req, res) => {};
+const updateBookingByIdHandler = async (req, res) => {
+  const { id } = req.params;
+  const updatedAt = datetimeFormat();
 
-const deleteBookingByIdHandler = async (req, res) => {};
+  const data = { ...req.body, id, updatedAt };
+
+  if (!data.recurring) {
+    data.endRecur = data.startRecur;
+  }
+
+  try {
+    const update = await updateBookingById(data);
+
+    if (update?.changedRows) {
+      res.status(200).json({
+        ok: true,
+        msg: "Update Event Data",
+        payload: { bookingId: id },
+      });
+    }
+  } catch {
+    InternalServerError(res);
+  }
+};
+
+const deleteBookingByIdHandler = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await deleteBookingById(id);
+
+    if (deleted?.affectedRows) {
+      res.status(200).json({
+        ok: true,
+        msg: "Successfully! Deleted Event",
+        payload: { bookingId: id },
+      });
+    }
+  } catch {
+    InternalServerError(res);
+  }
+};
 
 const getAllEventsHandler = async (req, res) => {
+  let { id } = req.params;
+  const { page, query } = req.query;
+
   try {
-    const events = await getAllBookings();
+    const user = await getUserById(id);
+    if (user[0].role === "admin") {
+      id = null;
+    }
+
+    const events = await getAllBookings(page, query, id);
+    const totalData = await getCountBookings(query, id);
+    const totalPages = Math.ceil(totalData / LIMIT);
+
     res.status(200).json({
       ok: true,
       msg: "Get All Event",
-      payload: { events: events },
+      payload: { events, totalData, totalPages },
     });
   } catch {
     InternalServerError(res);

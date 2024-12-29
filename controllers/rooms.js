@@ -5,14 +5,26 @@ import {
   createRoom,
   deleteRoomById,
   getAllRooms,
+  getCountRooms,
   getRoomById,
   updateRoomById,
 } from "../models/rooms.js";
+import { LIMIT } from "../middleware/counts.js";
 
 const getAllRoomsHandler = async (req, res) => {
+  const { page, query } = req.query;
+
   try {
-    const rooms = await getAllRooms();
-    StatusOK(res, "Get All Rooms", { rooms });
+    if (page) {
+      const rooms = await getAllRooms(true, page, query);
+      const totalData = await getCountRooms(query);
+      const totalPages = Math.ceil(totalData / LIMIT);
+
+      StatusOK(res, "Get All Rooms", { rooms, totalData, totalPages });
+    } else {
+      const rooms = await getAllRooms();
+      StatusOK(res, "Get All Rooms", { rooms });
+    }
   } catch {
     InternalServerError(res);
   }

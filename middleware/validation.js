@@ -1,9 +1,9 @@
 import { body, validationResult } from "express-validator";
 import { getUserById } from "../models/users.js";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 
 const bookingValidation = [
-  body("title").trim().notEmpty().withMessage("Required"),
+  body("title").trim().notEmpty().withMessage("Please choose a title"),
   body("description").trim(),
   body("startRecur")
     .trim()
@@ -11,13 +11,13 @@ const bookingValidation = [
       const splits = value.split("-");
 
       if (splits.length < 3) {
-        throw new Error("Invalid date");
+        throw new Error("Please provide a valid date");
       }
 
       return true;
     }),
-  body("startTime").trim().notEmpty().withMessage("Required"),
-  body("endTime").trim().notEmpty().withMessage("Required"),
+  body("startTime").trim().notEmpty().withMessage("Invalid time"),
+  body("endTime").trim().notEmpty().withMessage("Invalid time"),
   body("resourceId").trim().notEmpty().withMessage("Required"),
   body("endRecur")
     .trim()
@@ -28,7 +28,7 @@ const bookingValidation = [
         const splits = value.split("-");
 
         if (splits.length < 3) {
-          throw new Error("Invalid date");
+          throw new Error("Please provide a valid date");
         }
 
         if (req.body.startRecur) {
@@ -59,13 +59,11 @@ const bookingValidation = [
 ];
 
 const registerValidation = [
-  body("username").trim().notEmpty().withMessage("Required"),
+  body("username").trim().notEmpty().withMessage("Please choose a username."),
   body("email")
     .trim()
-    .notEmpty()
-    .withMessage("Required")
     .isEmail()
-    .withMessage("Invalid email")
+    .withMessage("Please provide a valid email.")
     .custom(async (value) => {
       const isExist = await getUserById(value);
 
@@ -92,8 +90,8 @@ const registerValidation = [
 ];
 
 const signinValidation = [
-  body("username").trim().notEmpty().withMessage("Required"),
-  body("password").trim().notEmpty().withMessage("Required"),
+  body("username").trim().notEmpty().withMessage("Please fill in a username."),
+  body("password").trim().notEmpty().withMessage("Please fill in a password."),
   (req, res, next) => {
     const results = validationResult(req);
 
@@ -113,10 +111,18 @@ const updateUserValidation = [
   body("username").trim().notEmpty().withMessage("Required"),
   body("email")
     .trim()
-    .notEmpty()
-    .withMessage("Required")
     .isEmail()
-    .withMessage("Invalid email"),
+    .withMessage("Please provide a valid email.")
+    .custom(async (value, { req }) => {
+      if (req.body.oldEmail !== value) {
+        const isExist = await getUserById(value);
+        if (isExist.length > 0) {
+          throw new Error("Email is already registered");
+        }
+      }
+
+      return true;
+    }),
   (req, res, next) => {
     const results = validationResult(req);
 
@@ -131,22 +137,6 @@ const updateUserValidation = [
     }
   },
 ];
-
-const tokenValidation = (req, res, next) => {
-  const { token } = req.body;
-
-  jwt.verify(token, "ptdqcpassword", function (err, decoded) {
-    if (err) {
-      res.status(404).json({
-        ok: false,
-        msg: "Not Found (token)",
-      });
-    } else {
-      req.userId = decoded.id;
-      next();
-    }
-  });
-};
 
 const roomsValidation = [
   body("room").trim().notEmpty().withMessage("Required"),
@@ -170,6 +160,5 @@ export {
   registerValidation,
   signinValidation,
   updateUserValidation,
-  tokenValidation,
   roomsValidation,
 };

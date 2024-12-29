@@ -2,7 +2,6 @@ import express from "express";
 import {
   registerValidation,
   signinValidation,
-  tokenValidation,
   updateUserValidation,
 } from "../middleware/validation.js";
 import {
@@ -13,17 +12,19 @@ import {
   updateUserByIdHandler,
   deleteUserByIdHandler,
   exchangeTokenHandler,
+  getAllRolesHandler,
   createRoleHandler,
 } from "../controllers/users.js";
 
 const app = express.Router();
 
 app.get("/", getAllUsersHandler);
+app.get("/roles", getAllRolesHandler);
 app.get("/:id", getUserByIdHandler);
 app.post("/", registerValidation, createUserHandler);
 app.post("/login", signinValidation, signinUserHandler);
 app.post("/roles", createRoleHandler);
-app.post("/exchangetoken", tokenValidation, exchangeTokenHandler);
+app.post("/exchangetoken", exchangeTokenHandler);
 app.patch("/:id", updateUserValidation, updateUserByIdHandler);
 app.delete("/:id", deleteUserByIdHandler);
 
