@@ -148,7 +148,11 @@ const signinUserHandler = async (req, res) => {
         const token = createToken(users[0].id);
         res
           .status(200)
-          .json({ ok: true, msg: "Successfuly signin", payload: { token } });
+          .json({
+            ok: true,
+            msg: "Successfuly signin",
+            payload: { token, role: users[0].role },
+          });
       } else {
         const errors = [
           {
