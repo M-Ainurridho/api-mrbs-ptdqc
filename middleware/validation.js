@@ -1,6 +1,5 @@
 import { body, validationResult } from "express-validator";
 import { getUserById } from "../models/users.js";
-import jwt, { decode } from "jsonwebtoken";
 
 const bookingValidation = [
   body("title").trim().notEmpty().withMessage("Please choose a title"),
@@ -108,7 +107,7 @@ const signinValidation = [
 ];
 
 const updateUserValidation = [
-  body("username").trim().notEmpty().withMessage("Required"),
+  body("username").trim().notEmpty().withMessage("Please choose a username."),
   body("email")
     .trim()
     .isEmail()
@@ -139,7 +138,7 @@ const updateUserValidation = [
 ];
 
 const roomsValidation = [
-  body("room").trim().notEmpty().withMessage("Required"),
+  body("room").trim().notEmpty().withMessage("Please provide a room."),
   (req, res, next) => {
     const results = validationResult(req);
 

@@ -9,8 +9,7 @@ const getAllBookings = async (page = null, query = "", id) => {
       if (id) {
         const [results] = await connection.query(
           `SELECT *, bookings.id, bookings.title FROM bookings 
-          INNER JOIN rooms ON 
-          bookings.resourceId = rooms.id
+          INNER JOIN rooms ON bookings.resourceId = rooms.id
           WHERE bookings.userId = '${id}' AND (bookings.title LIKE '%${query}%' OR
           rooms.room LIKE '%${query}%' OR
           bookings.startRecur LIKE '%${query}%' OR
@@ -49,7 +48,10 @@ const getAllBookings = async (page = null, query = "", id) => {
 const getBookingById = async (id) => {
   try {
     const [results] = await connection.query(
-      `SELECT *, bookings.id, bookings.title FROM bookings INNER JOIN rooms ON bookings.resourceId = rooms.id WHERE bookings.id = '${id}'`
+      `SELECT *, bookings.id, bookings.title FROM bookings 
+      INNER JOIN rooms ON bookings.resourceId = rooms.id 
+      INNER JOIN users ON bookings.userId = users.id
+      WHERE bookings.id = '${id}'`
     );
     return results;
   } catch (err) {
@@ -110,7 +112,7 @@ const updateBookingById = async (data) => {
 const deleteBookingById = async (id) => {
   try {
     const [results] = await connection.query(
-      `DELETE FROM bookings WHERE id = '${id}'`
+      `DELETE FROM bookings WHERE id = '${id}' OR resourceId = '${id}'`
     );
     return results;
   } catch (err) {
@@ -150,6 +152,25 @@ const getCountBookings = async (query, id) => {
   }
 };
 
+const searchDuplicateEvent = async ({
+  resourceId,
+  startRecur,
+  endRecur,
+  recurring,
+}) => {
+  try {
+    if (!recurring) {
+      const [results] = await connection.query(
+        `SELECT * FROM bookings 
+        WHERE resourceId = '${resourceId}' AND startRecur = '${startRecur}'`
+      );
+      return results;
+    }
+  } catch (err) {
+    throw err;
+  }
+};
+
 export {
   getAllBookings,
   getBookingById,
@@ -157,4 +178,5 @@ export {
   updateBookingById,
   deleteBookingById,
   getCountBookings,
+  searchDuplicateEvent,
 };

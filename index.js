@@ -14,7 +14,7 @@ app.use("/v1", v1);
 app.use("/", (req, res) =>
   res
     .status(200)
-    .json({ ok: true, msg: "Welcome at API MRBS PT. Duratquipt Cemerlang" })
+    .json({ ok: true, msg: "Welcome at API MRBS PT. Duraquipt Cemerlang" })
 );
 
 app.listen(port, () => {

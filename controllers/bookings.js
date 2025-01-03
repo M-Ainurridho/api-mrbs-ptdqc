@@ -82,6 +82,8 @@ const createBookingHandler = async (req, res) => {
     data.endRecur = data.startRecur;
   }
 
+  console.log(data);
+
   try {
     const create = await createBooking(data);
 

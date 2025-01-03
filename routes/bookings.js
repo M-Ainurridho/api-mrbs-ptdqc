@@ -8,13 +8,14 @@ import {
   updateBookingByIdHandler,
   deleteBookingByIdHandler,
 } from "../controllers/bookings.js";
+import checkingDuplicateDate from "../middleware/duplicate.js";
 
 const app = express.Router();
 
 app.get("/", getAllBookingsHandler);
 app.get("/events/:id", getAllEventsHandler);
 app.get("/:id", getBookingByIdHandler);
-app.post("/", bookingValidation, createBookingHandler);
+app.post("/", bookingValidation, checkingDuplicateDate, createBookingHandler);
 app.patch("/:id", bookingValidation, updateBookingByIdHandler);
 app.delete("/:id", deleteBookingByIdHandler);
 

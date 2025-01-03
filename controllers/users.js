@@ -146,17 +146,15 @@ const signinUserHandler = async (req, res) => {
       const comPassword = comparePassword(data.password, users[0].password);
       if (comPassword) {
         const token = createToken(users[0].id);
-        res
-          .status(200)
-          .json({
-            ok: true,
-            msg: "Successfuly signin",
-            payload: { token, role: users[0].role },
-          });
+        res.status(200).json({
+          ok: true,
+          msg: "Successfully signin",
+          payload: { token, user: users[0] },
+        });
       } else {
         const errors = [
           {
-            msg: "Wrong password",
+            msg: "Password wrong",
             path: "password",
           },
         ];
@@ -178,23 +176,6 @@ const signinUserHandler = async (req, res) => {
 };
 
 const exchangeTokenHandler = async (req, res) => {
-  // const { userId } = req;
-
-  // try {
-  //   const users = await getUserById(userId);
-
-  //   if (users.length > 0) {
-  //     delete users[0].password;
-
-  //     res.status(200).json({
-  //       ok: true,
-  //       msg: "Get User By Token",
-  //       payload: { user: users[0] },
-  //     });
-  //   }
-  // } catch {
-  //   InternalServerError(res);
-  // }
   const { token } = req.body;
 
   jwt.verify(token, "ptdqcpassword", function (err, decoded) {

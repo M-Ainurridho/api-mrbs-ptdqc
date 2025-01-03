@@ -10,7 +10,7 @@ const getAllRooms = async (limit = false, page = null, query = "") => {
         `SELECT * FROM rooms 
         WHERE room LIKE '%${query}%' OR 
         createdAt LIKE '%${query}%' 
-        ORDER BY room DESC 
+        ORDER BY updatedAt DESC 
         LIMIT ${LIMIT} OFFSET ${OFFSET}`
       );
       return results;

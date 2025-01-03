@@ -13,6 +13,6 @@ const app = express.Router();
 app.get("/", getAllRoomsHandler);
 app.get("/:id", getRoomByIdHandler);
 app.post("/", roomsValidation, createRoomHandler);
-app.patch("/:id", updateRoomByIdHandler);
+app.patch("/:id", roomsValidation, updateRoomByIdHandler);
 app.delete("/:id", deleteRoomByIdHandler);
 export default app;

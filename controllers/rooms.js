@@ -10,6 +10,7 @@ import {
   updateRoomById,
 } from "../models/rooms.js";
 import { LIMIT } from "../middleware/counts.js";
+import { deleteBookingById } from "../models/bookings.js";
 
 const getAllRoomsHandler = async (req, res) => {
   const { page, query } = req.query;
@@ -91,6 +92,7 @@ const deleteRoomByIdHandler = async (req, res) => {
 
   try {
     const deleted = await deleteRoomById(id);
+    await deleteBookingById(id);
 
     if (deleted?.affectedRows) {
       res.status(200).json({
