@@ -36,11 +36,12 @@ const getAllBookings = async (page = null, query = "", id) => {
       }
     } else {
       const [results] = await connection.query(
-        `SELECT * FROM bookings ORDER BY updatedAt DESC`
+        `SELECT *, bookings.id FROM bookings INNER JOIN users ON bookings.userId = users.id ORDER BY bookings.updatedAt DESC`
       );
       return results;
     }
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };

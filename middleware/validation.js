@@ -89,7 +89,7 @@ const registerValidation = [
 ];
 
 const signinValidation = [
-  body("username").trim().notEmpty().withMessage("Please fill in a username."),
+  body("email").trim().isEmail().withMessage("Please provide a valid email."),
   body("password").trim().notEmpty().withMessage("Please fill in a password."),
   (req, res, next) => {
     const results = validationResult(req);

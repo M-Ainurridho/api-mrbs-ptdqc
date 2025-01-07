@@ -3,6 +3,7 @@ import { InternalServerError } from "../response.js";
 import { dateFormat } from "../utils/dates.js";
 
 const checkingDuplicateDate = async (req, res, next) => {
+  const { id } = req.params;
   const data = { ...req.body };
 
   if (!data.endRecur) {
@@ -13,7 +14,7 @@ const checkingDuplicateDate = async (req, res, next) => {
     const response = await searchBookingDuplicate(data);
 
     if (response.length > 0) {
-      const noneAndDaily = response;
+      const eventsBooked = response.filter((res) => (id ? res.id != id : res));
 
       const conflicts = [];
       const aDay = 1000 * 60 * 60 * 24; // 1 day
@@ -31,15 +32,15 @@ const checkingDuplicateDate = async (req, res, next) => {
           }
         }
 
-        for (let x = 0; x < noneAndDaily.length; x++) {
+        for (let x = 0; x < eventsBooked.length; x++) {
           const outputStartDate = new Date(
-            noneAndDaily[x].startRecur
+            eventsBooked[x].startRecur
           ).getTime();
-          const outputEndDate = new Date(noneAndDaily[x].endRecur).getTime();
+          const outputEndDate = new Date(eventsBooked[x].endRecur).getTime();
 
           const isWeeklyOutput =
-            noneAndDaily[x].repeat === "weekly" ? true : false;
-          const daysOfWeekOutput = noneAndDaily[x].daysOfWeek
+            eventsBooked[x].repeat === "weekly" ? true : false;
+          const daysOfWeekOutput = eventsBooked[x].daysOfWeek
             .split(",")
             .map((num) => Number(num));
 
@@ -58,20 +59,20 @@ const checkingDuplicateDate = async (req, res, next) => {
 
             if (dateFormat(input) === dateFormat(output)) {
               // input start date greater than output start date index ke-x
-              if (data.startTime >= noneAndDaily[x].startTime) {
-                if (data.startTime < noneAndDaily[x].endTime) {
+              if (data.startTime >= eventsBooked[x].startTime) {
+                if (data.startTime < eventsBooked[x].endTime) {
                   conflicts.push({
                     date: dateFormat(output),
-                    duration: `${noneAndDaily[x].startTime} - ${noneAndDaily[x].endTime}`,
+                    duration: `${eventsBooked[x].startTime} - ${eventsBooked[x].endTime}`,
                   });
                 }
               }
               // input start date less than output start date index ke-x
               else {
-                if (data.endTime > noneAndDaily[x].startTime) {
+                if (data.endTime > eventsBooked[x].startTime) {
                   conflicts.push({
                     date: dateFormat(output),
-                    duration: `${noneAndDaily[x].startTime} - ${noneAndDaily[x].endTime}`,
+                    duration: `${eventsBooked[x].startTime} - ${eventsBooked[x].endTime}`,
                   });
                 }
               }

@@ -44,7 +44,7 @@ const getRoomByIdHandler = async (req, res) => {
         payload: { room: rooms[0] },
       });
     } else {
-      res.status(400).json({
+      res.status(404).json({
         ok: false,
         msg: "Not Found (room id)",
       });

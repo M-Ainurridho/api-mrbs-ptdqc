@@ -16,7 +16,12 @@ app.get("/", getAllBookingsHandler);
 app.get("/events/:id", getAllEventsHandler);
 app.get("/:id", getBookingByIdHandler);
 app.post("/", bookingValidation, checkingDuplicateDate, createBookingHandler);
-app.patch("/:id", bookingValidation, updateBookingByIdHandler);
+app.patch(
+  "/:id",
+  bookingValidation,
+  checkingDuplicateDate,
+  updateBookingByIdHandler
+);
 app.delete("/:id", deleteBookingByIdHandler);
 
 export default app;

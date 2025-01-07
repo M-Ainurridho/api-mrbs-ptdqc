@@ -17,6 +17,7 @@ const getAllBookingsHandler = async (req, res) => {
     const response = await getAllBookings();
 
     const bookings = response.map((booking) => {
+      delete booking.password;
       if (booking.recurring) {
         return {
           ...booking,
@@ -34,6 +35,7 @@ const getAllBookingsHandler = async (req, res) => {
           description: booking.description,
           resourceId: booking.resourceId,
           recurring: Boolean(booking.recurring),
+          username: booking.username,
         };
       }
     });
@@ -61,7 +63,7 @@ const getBookingByIdHandler = async (req, res) => {
         payload: { booking: booking[0] },
       });
     } else {
-      res.status(400).json({
+      res.status(404).json({
         ok: false,
         msg: "Not Found",
       });
@@ -81,8 +83,6 @@ const createBookingHandler = async (req, res) => {
   if (!data.recurring) {
     data.endRecur = data.startRecur;
   }
-
-  console.log(data);
 
   try {
     const create = await createBooking(data);

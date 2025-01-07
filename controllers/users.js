@@ -54,7 +54,7 @@ const getUserByIdHandler = async (req, res) => {
         payload: { user: users[0] },
       });
     } else {
-      res.status(400).json({
+      res.status(404).json({
         ok: false,
         msg: "Not Found",
       });
@@ -140,7 +140,7 @@ const signinUserHandler = async (req, res) => {
   const data = { ...req.body };
 
   try {
-    const users = await getUserById(data.username);
+    const users = await getUserById(data.email);
 
     if (users.length > 0) {
       const comPassword = comparePassword(data.password, users[0].password);
@@ -163,9 +163,9 @@ const signinUserHandler = async (req, res) => {
     } else {
       const errors = [
         {
-          value: data.username,
-          msg: "Username not registered",
-          path: "username",
+          value: data.email,
+          msg: "Email isn't registered",
+          path: "email",
         },
       ];
       res.status(404).json({ ok: false, msg: "Bad Request", errors });
