@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import v1 from "./routes/index.js";
 
 const app = express();
-const port = 3001;
+const port = process.env.APP_PORT || 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
