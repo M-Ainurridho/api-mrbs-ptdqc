@@ -11,6 +11,7 @@ import {
 import { InternalServerError } from "../response.js";
 import { LIMIT } from "../middleware/counts.js";
 import { getUserById } from "../models/users.js";
+import puppeteer from "puppeteer";
 
 const getAllBookingsHandler = async (req, res) => {
   try {
@@ -166,6 +167,27 @@ const getAllEventsHandler = async (req, res) => {
   }
 };
 
+const createPDF = async (req, res, next) => {
+  const { date } = req.query;
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  await page.goto(`http://192.168.5.37:3000/reports/print?date=${date}`);
+  await page.waitForSelector("#root");
+
+  await page.pdf({
+    path: "assets/pdf/print-schedule.pdf",
+    format: "A4",
+    printBackground: true,
+    landscape: true,
+  });
+
+  await browser.close();
+
+  next();
+};
+
 export {
   getAllBookingsHandler,
   getBookingByIdHandler,
@@ -173,4 +195,5 @@ export {
   updateBookingByIdHandler,
   deleteBookingByIdHandler,
   getAllEventsHandler,
+  createPDF,
 };
