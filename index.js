@@ -18,5 +18,5 @@ app.use("/", (req, res) =>
 );
 
 app.listen(port, () => {
-  console.log(`Server is listening at http://localhost:${port}`);
+  console.log(`Server is listening at http://192.168.3.37:${port}`);
 });
