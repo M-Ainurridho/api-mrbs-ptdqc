@@ -173,7 +173,7 @@ const createPDF = async (req, res, next) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  await page.goto(`http://192.168.3.37:5002/reports/print?date=${date}`);
+  await page.goto(`http://192.168.5.37:5002/reports/print?date=${date}`);
   await page.waitForSelector("#root");
 
   await page.pdf({
